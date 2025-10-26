@@ -109,6 +109,41 @@ def register_tools():
         return extended_document_tools.convert_markdown_to_pdf(input_path, output_path)
 
     @mcp.tool()
+    def convert_to_rtf(filename: str, output_filename: str = None):
+        """Convert a Word document to RTF (.rtf)."""
+        return extended_document_tools.convert_to_rtf(filename, output_filename)
+
+    @mcp.tool()
+    def convert_to_odt(filename: str, output_filename: str = None):
+        """Convert a Word document to ODT (.odt)."""
+        return extended_document_tools.convert_to_odt(filename, output_filename)
+
+    @mcp.tool()
+    def convert_html_to_docx(input_path: str, output_path: str = None):
+        """Convert an HTML document to DOCX (.docx)."""
+        return extended_document_tools.convert_html_to_docx(input_path, output_path)
+
+    @mcp.tool()
+    def convert_markdown_to_docx(input_path: str, output_path: str = None):
+        """Convert a Markdown document to DOCX (.docx)."""
+        return extended_document_tools.convert_markdown_to_docx(input_path, output_path)
+
+    @mcp.tool()
+    def convert_txt_to_docx(input_path: str, output_path: str = None):
+        """Convert a TXT document to DOCX (.docx)."""
+        return extended_document_tools.convert_txt_to_docx(input_path, output_path)
+
+    @mcp.tool()
+    def convert_odt_to_docx(input_path: str, output_path: str = None):
+        """Convert an ODT document to DOCX (.docx)."""
+        return extended_document_tools.convert_odt_to_docx(input_path, output_path)
+
+    @mcp.tool()
+    def convert_rtf_to_docx(input_path: str, output_path: str = None):
+        """Convert an RTF document to DOCX (.docx)."""
+        return extended_document_tools.convert_rtf_to_docx(input_path, output_path)
+
+    @mcp.tool()
     def replace_paragraph_block_below_header(filename: str, header_text: str, new_paragraphs: list, detect_block_end_fn=None):
         """Reemplaza el bloque de párrafos debajo de un encabezado, evitando modificar TOC."""
         return replace_paragraph_block_below_header_tool(filename, header_text, new_paragraphs, detect_block_end_fn)

@@ -422,3 +422,349 @@ async def convert_markdown_to_pdf(input_path: str, output_path: Optional[str] = 
     except Exception:
         pass
     return html_to_pdf_result
+
+
+async def convert_to_rtf(filename: str, output_filename: Optional[str] = None) -> str:
+    filename = ensure_docx_extension(filename)
+    if not os.path.exists(filename):
+        return f"Document {filename} does not exist"
+    if not output_filename:
+        base_name, _ = os.path.splitext(filename)
+        output_filename = f"{base_name}.rtf"
+    elif not output_filename.lower().endswith('.rtf'):
+        output_filename = f"{output_filename}.rtf"
+    if not os.path.isabs(output_filename):
+        output_filename = os.path.abspath(output_filename)
+    output_dir = os.path.dirname(output_filename) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_filename)
+    if not is_writeable:
+        return f"Cannot create RTF: {error_message} (Path: {output_filename}, Dir: {output_dir})"
+    try:
+        system = platform.system()
+        candidates = []
+        if system == 'Windows':
+            candidates = [
+                'soffice',
+                r'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+                r'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
+            ]
+        elif system == 'Darwin':
+            candidates = ['soffice', '/Applications/LibreOffice.app/Contents/MacOS/soffice']
+        else:
+            candidates = ['libreoffice', 'soffice']
+        errors = []
+        for cmd_name in candidates:
+            try:
+                cmd = [cmd_name, '--headless', '--convert-to', 'rtf', '--outdir', output_dir, filename]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
+                if result.returncode == 0:
+                    base_name = os.path.splitext(os.path.basename(filename))[0]
+                    created_path = os.path.join(output_dir, f'{base_name}.rtf')
+                    if os.path.exists(created_path):
+                        if created_path != output_filename:
+                            shutil.move(created_path, output_filename)
+                        if os.path.exists(output_filename):
+                            return f"Document successfully converted to RTF via {cmd_name}: {output_filename}"
+                    errors.append(f"{cmd_name} returned success code, but output file '{created_path}' was not found.")
+                else:
+                    errors.append(f"{cmd_name} failed. Stderr: {result.stderr.strip()}")
+            except FileNotFoundError:
+                errors.append(f"Command '{cmd_name}' not found.")
+            except Exception as e:
+                errors.append(f"An error occurred with {cmd_name}: {str(e)}")
+        return "Failed to convert DOCX to RTF using LibreOffice. " + "; ".join(errors)
+    except Exception as e:
+        return f"Failed to convert document to RTF: {str(e)}"
+
+async def convert_to_odt(filename: str, output_filename: Optional[str] = None) -> str:
+    filename = ensure_docx_extension(filename)
+    if not os.path.exists(filename):
+        return f"Document {filename} does not exist"
+    if not output_filename:
+        base_name, _ = os.path.splitext(filename)
+        output_filename = f"{base_name}.odt"
+    elif not output_filename.lower().endswith('.odt'):
+        output_filename = f"{output_filename}.odt"
+    if not os.path.isabs(output_filename):
+        output_filename = os.path.abspath(output_filename)
+    output_dir = os.path.dirname(output_filename) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_filename)
+    if not is_writeable:
+        return f"Cannot create ODT: {error_message} (Path: {output_filename}, Dir: {output_dir})"
+    try:
+        system = platform.system()
+        candidates = []
+        if system == 'Windows':
+            candidates = [
+                'soffice',
+                r'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+                r'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
+            ]
+        elif system == 'Darwin':
+            candidates = ['soffice', '/Applications/LibreOffice.app/Contents/MacOS/soffice']
+        else:
+            candidates = ['libreoffice', 'soffice']
+        errors = []
+        for cmd_name in candidates:
+            try:
+                cmd = [cmd_name, '--headless', '--convert-to', 'odt', '--outdir', output_dir, filename]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
+                if result.returncode == 0:
+                    base_name = os.path.splitext(os.path.basename(filename))[0]
+                    created_path = os.path.join(output_dir, f'{base_name}.odt')
+                    if os.path.exists(created_path):
+                        if created_path != output_filename:
+                            shutil.move(created_path, output_filename)
+                        if os.path.exists(output_filename):
+                            return f"Document successfully converted to ODT via {cmd_name}: {output_filename}"
+                    errors.append(f"{cmd_name} returned success code, but output file '{created_path}' was not found.")
+                else:
+                    errors.append(f"{cmd_name} failed. Stderr: {result.stderr.strip()}")
+            except FileNotFoundError:
+                errors.append(f"Command '{cmd_name}' not found.")
+            except Exception as e:
+                errors.append(f"An error occurred with {cmd_name}: {str(e)}")
+        return "Failed to convert DOCX to ODT using LibreOffice. " + "; ".join(errors)
+    except Exception as e:
+        return f"Failed to convert document to ODT: {str(e)}"
+
+async def convert_html_to_docx(input_path: str, output_path: Optional[str] = None) -> str:
+    if not os.path.exists(input_path):
+        return f"Document {input_path} does not exist"
+    if not output_path:
+        base_name, _ = os.path.splitext(input_path)
+        output_path = f"{base_name}.docx"
+    elif not output_path.lower().endswith('.docx'):
+        output_path = f"{output_path}.docx"
+    if not os.path.isabs(output_path):
+        output_path = os.path.abspath(output_path)
+    output_dir = os.path.dirname(output_path) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_path)
+    if not is_writeable:
+        return f"Cannot create DOCX: {error_message} (Path: {output_path}, Dir: {output_dir})"
+    # Try LibreOffice conversion directly
+    try:
+        system = platform.system()
+        candidates = []
+        if system == 'Windows':
+            candidates = [
+                'soffice',
+                r'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+                r'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
+            ]
+        elif system == 'Darwin':
+            candidates = ['soffice', '/Applications/LibreOffice.app/Contents/MacOS/soffice']
+        else:
+            candidates = ['libreoffice', 'soffice']
+        errors = []
+        for cmd_name in candidates:
+            try:
+                cmd = [cmd_name, '--headless', '--convert-to', 'docx', '--outdir', output_dir, input_path]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
+                if result.returncode == 0:
+                    base_name = os.path.splitext(os.path.basename(input_path))[0]
+                    created_path = os.path.join(output_dir, f'{base_name}.docx')
+                    if os.path.exists(created_path):
+                        if created_path != output_path:
+                            shutil.move(created_path, output_path)
+                        if os.path.exists(output_path):
+                            return f"Document successfully converted to DOCX via {cmd_name}: {output_path}"
+                    errors.append(f"{cmd_name} returned success code, but output file '{created_path}' was not found.")
+                else:
+                    errors.append(f"{cmd_name} failed. Stderr: {result.stderr.strip()}")
+            except FileNotFoundError:
+                errors.append(f"Command '{cmd_name}' not found.")
+            except Exception as e:
+                errors.append(f"An error occurred with {cmd_name}: {str(e)}")
+        return "Failed to convert HTML to DOCX using LibreOffice. " + "; ".join(errors)
+    except Exception as e:
+        return f"Failed to convert HTML to DOCX: {str(e)}"
+
+async def convert_markdown_to_docx(input_path: str, output_path: Optional[str] = None) -> str:
+    if not os.path.exists(input_path):
+        return f"Document {input_path} does not exist"
+    if not output_path:
+        base_name, _ = os.path.splitext(input_path)
+        output_path = f"{base_name}.docx"
+    elif not output_path.lower().endswith('.docx'):
+        output_path = f"{output_path}.docx"
+    if not os.path.isabs(output_path):
+        output_path = os.path.abspath(output_path)
+    output_dir = os.path.dirname(output_path) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_path)
+    if not is_writeable:
+        return f"Cannot create DOCX: {error_message} (Path: {output_path}, Dir: {output_dir})"
+    # Strategy: convert MD -> HTML, then HTML -> DOCX via LibreOffice; fallback to naive python-docx.
+    try:
+        # Convert Markdown to HTML first
+        try:
+            import markdown  # type: ignore
+        except ImportError:
+            return "Failed to convert Markdown to DOCX: markdown is not installed. Please install 'markdown'."
+        with open(input_path, 'r', encoding='utf-8') as f:
+            md_text = f.read()
+        html = markdown.markdown(md_text, output_format='html5')
+        tmp_html = os.path.join(output_dir, '__tmp_md_to_html__.html')
+        with open(tmp_html, 'w', encoding='utf-8') as f:
+            f.write(html)
+        # Use LibreOffice to convert HTML -> DOCX
+        html_to_docx_result = await convert_html_to_docx(tmp_html, output_path)
+        try:
+            if os.path.exists(tmp_html):
+                os.remove(tmp_html)
+        except Exception:
+            pass
+        if os.path.exists(output_path):
+            return html_to_docx_result
+        # Fallback: naive python-docx rendering
+        try:
+            from docx import Document
+        except Exception:
+            return "Failed to convert Markdown to DOCX and no fallback available."
+        doc = Document()
+        for line in md_text.splitlines():
+            if line.startswith('#'):
+                level = len(line) - len(line.lstrip('#'))
+                text = line.lstrip('#').strip()
+                doc.add_heading(text, level=min(level, 4))
+            elif line.startswith(('- ', '* ')):
+                doc.add_paragraph(line[2:].strip())
+            else:
+                doc.add_paragraph(line)
+        doc.save(output_path)
+        return f"Document successfully converted to DOCX (fallback naive): {output_path}"
+    except Exception as e:
+        return f"Failed to convert Markdown to DOCX: {str(e)}"
+
+async def convert_txt_to_docx(input_path: str, output_path: Optional[str] = None) -> str:
+    if not os.path.exists(input_path):
+        return f"Document {input_path} does not exist"
+    if not output_path:
+        base_name, _ = os.path.splitext(input_path)
+        output_path = f"{base_name}.docx"
+    elif not output_path.lower().endswith('.docx'):
+        output_path = f"{output_path}.docx"
+    if not os.path.isabs(output_path):
+        output_path = os.path.abspath(output_path)
+    output_dir = os.path.dirname(output_path) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_path)
+    if not is_writeable:
+        return f"Cannot create DOCX: {error_message} (Path: {output_path}, Dir: {output_dir})"
+    try:
+        doc = Document()
+        with open(input_path, 'r', encoding='utf-8') as f:
+            for line in f.readlines():
+                doc.add_paragraph(line.rstrip('\n'))
+        doc.save(output_path)
+        return f"Document successfully converted to DOCX: {output_path}"
+    except Exception as e:
+        return f"Failed to convert TXT to DOCX: {str(e)}"
+
+async def convert_odt_to_docx(input_path: str, output_path: Optional[str] = None) -> str:
+    if not os.path.exists(input_path):
+        return f"Document {input_path} does not exist"
+    if not output_path:
+        base_name, _ = os.path.splitext(input_path)
+        output_path = f"{base_name}.docx"
+    elif not output_path.lower().endswith('.docx'):
+        output_path = f"{output_path}.docx"
+    if not os.path.isabs(output_path):
+        output_path = os.path.abspath(output_path)
+    output_dir = os.path.dirname(output_path) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_path)
+    if not is_writeable:
+        return f"Cannot create DOCX: {error_message} (Path: {output_path}, Dir: {output_dir})"
+    try:
+        system = platform.system()
+        candidates = []
+        if system == 'Windows':
+            candidates = [
+                'soffice',
+                r'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+                r'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
+            ]
+        elif system == 'Darwin':
+            candidates = ['soffice', '/Applications/LibreOffice.app/Contents/MacOS/soffice']
+        else:
+            candidates = ['libreoffice', 'soffice']
+        errors = []
+        for cmd_name in candidates:
+            try:
+                cmd = [cmd_name, '--headless', '--convert-to', 'docx', '--outdir', output_dir, input_path]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
+                if result.returncode == 0:
+                    base_name = os.path.splitext(os.path.basename(input_path))[0]
+                    created_path = os.path.join(output_dir, f'{base_name}.docx')
+                    if os.path.exists(created_path):
+                        if created_path != output_path:
+                            shutil.move(created_path, output_path)
+                        if os.path.exists(output_path):
+                            return f"Document successfully converted to DOCX via {cmd_name}: {output_path}"
+                    errors.append(f"{cmd_name} returned success code, but output file '{created_path}' was not found.")
+                else:
+                    errors.append(f"{cmd_name} failed. Stderr: {result.stderr.strip()}")
+            except FileNotFoundError:
+                errors.append(f"Command '{cmd_name}' not found.")
+            except Exception as e:
+                errors.append(f"An error occurred with {cmd_name}: {str(e)}")
+        return "Failed to convert ODT to DOCX using LibreOffice. " + "; ".join(errors)
+    except Exception as e:
+        return f"Failed to convert ODT to DOCX: {str(e)}"
+
+async def convert_rtf_to_docx(input_path: str, output_path: Optional[str] = None) -> str:
+    if not os.path.exists(input_path):
+        return f"Document {input_path} does not exist"
+    if not output_path:
+        base_name, _ = os.path.splitext(input_path)
+        output_path = f"{base_name}.docx"
+    elif not output_path.lower().endswith('.docx'):
+        output_path = f"{output_path}.docx"
+    if not os.path.isabs(output_path):
+        output_path = os.path.abspath(output_path)
+    output_dir = os.path.dirname(output_path) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_path)
+    if not is_writeable:
+        return f"Cannot create DOCX: {error_message} (Path: {output_path}, Dir: {output_dir})"
+    try:
+        system = platform.system()
+        candidates = []
+        if system == 'Windows':
+            candidates = [
+                'soffice',
+                r'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+                r'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
+            ]
+        elif system == 'Darwin':
+            candidates = ['soffice', '/Applications/LibreOffice.app/Contents/MacOS/soffice']
+        else:
+            candidates = ['libreoffice', 'soffice']
+        errors = []
+        for cmd_name in candidates:
+            try:
+                cmd = [cmd_name, '--headless', '--convert-to', 'docx', '--outdir', output_dir, input_path]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
+                if result.returncode == 0:
+                    base_name = os.path.splitext(os.path.basename(input_path))[0]
+                    created_path = os.path.join(output_dir, f'{base_name}.docx')
+                    if os.path.exists(created_path):
+                        if created_path != output_path:
+                            shutil.move(created_path, output_path)
+                        if os.path.exists(output_path):
+                            return f"Document successfully converted to DOCX via {cmd_name}: {output_path}"
+                    errors.append(f"{cmd_name} returned success code, but output file '{created_path}' was not found.")
+                else:
+                    errors.append(f"{cmd_name} failed. Stderr: {result.stderr.strip()}")
+            except FileNotFoundError:
+                errors.append(f"Command '{cmd_name}' not found.")
+            except Exception as e:
+                errors.append(f"An error occurred with {cmd_name}: {str(e)}")
+        return "Failed to convert RTF to DOCX using LibreOffice. " + "; ".join(errors)
+    except Exception as e:
+        return f"Failed to convert RTF to DOCX: {str(e)}"

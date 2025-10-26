@@ -23,10 +23,15 @@
 - DOCX → TXT（提取纯文本）
 - DOCX → HTML（使用 `mammoth` 进行语义化 HTML 转换）
 - DOCX → Markdown（先转 HTML，再用 `markdownify` 转为 Markdown）
+- DOCX → RTF（通过 LibreOffice 转换）
+- DOCX → ODT（通过 LibreOffice 转换）
 - HTML ↔ Markdown（`markdownify`、`markdown`）
 - HTML → PDF（通过 LibreOffice `soffice --convert-to pdf`）
+- HTML → DOCX（通过 LibreOffice 转换）
 - Markdown → PDF（先转 HTML，再用 LibreOffice 转 PDF）
-
+- Markdown → DOCX（先转 HTML，再用 LibreOffice；无LibreOffice时回退为简易解析）
+- TXT → DOCX（使用 `python-docx` 生成文档）
+- ODT/RTF → DOCX（通过 LibreOffice 转换）
 
 
 
@@ -58,15 +63,22 @@
 - `convert_to_txt(input_path, output_path=None)`
 - `convert_to_html(input_path, output_path=None)`
 - `convert_to_markdown(input_path, output_path=None)`
+- `convert_to_rtf(input_path, output_path=None)`
+- `convert_to_odt(input_path, output_path=None)`
 - `convert_html_to_markdown(input_path, output_path=None)`
 - `convert_markdown_to_html(input_path, output_path=None)`
 - `convert_html_to_pdf(input_path, output_path=None)`
 - `convert_markdown_to_pdf(input_path, output_path=None)`
+- `convert_html_to_docx(input_path, output_path=None)`
+- `convert_markdown_to_docx(input_path, output_path=None)`
+- `convert_txt_to_docx(input_path, output_path=None)`
+- `convert_odt_to_docx(input_path, output_path=None)`
+- `convert_rtf_to_docx(input_path, output_path=None)`
 
 说明：
-- `input_path` 为输入文件的绝对路径。（如e:\\mcp-sever）
-- `output_path` 可选；不提供时将自动生成与输入同名的目标文件（扩展名分别为 `.pdf`/`.txt`/`.html`/`.md`）。
-
+- `input_path` 为输入文件的绝对路径。（如`e\\mcp-sever`）
+- `output_path` 可选；不提供时将自动生成与输入同名的目标文件（扩展名分别为 `.pdf`/`.txt`/`.html`/`.md`/`.rtf`/`.odt`/`.docx`）。
+- Windows/macOS/Linux：若需要 `rtf`/`odt` 或 `html/md → docx` 功能，请安装 LibreOffice；否则部分功能将降级或返回安装提示。
 
 
 ## 备注
