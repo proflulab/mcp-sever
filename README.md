@@ -35,14 +35,14 @@
 ```json
 {
   "mcpServers": {
-    "word-document-server": {
+    "office-word-mcp-server": {
       "command": "python",
       "args": [
         "-m",
         "word_document_server.main"
       ],
       "env": {
-        "PYTHONPATH": "/path/to/your/Office-Word-MCP-Server",
+        "PYTHONPATH": "e\\mcp-sever",
         "MCP_TRANSPORT": "stdio"
       }
     }

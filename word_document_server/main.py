@@ -19,7 +19,8 @@ def get_transport_config():
         'host': '0.0.0.0',
         'port': 8000,
         'path': '/mcp',
-        'sse_path': '/sse'
+        'sse_path': '/sse',
+        'debug': False,
     }
     
     # Override with environment variables if provided
@@ -37,6 +38,10 @@ def get_transport_config():
     config['port'] = int(os.getenv('PORT', os.getenv('MCP_PORT', config['port'])))
     config['path'] = os.getenv('MCP_PATH', config['path'])
     config['sse_path'] = os.getenv('MCP_SSE_PATH', config['sse_path'])
+    
+    # Debug flag
+    debug_env = os.getenv('MCP_DEBUG', '').strip().lower()
+    config['debug'] = debug_env in ('1', 'true', 'yes', 'on')
     
     return config
 

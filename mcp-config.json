@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "word-document-server": {
+    "office-word-mcp-server": {
       "command": "python",
       "args": [
         "-m",

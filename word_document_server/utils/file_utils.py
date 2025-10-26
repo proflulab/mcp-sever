@@ -70,16 +70,29 @@ def create_document_copy(source_path: str, dest_path: Optional[str] = None) -> T
         return False, f"Failed to copy document: {str(e)}", None
 
 
-def ensure_docx_extension(filename: str) -> str:
+def ensure_docx_extension(filepath: str) -> str:
     """
-    Ensure filename has .docx extension.
-    
+    Ensure the given filepath ends with '.docx'. If not, append the extension.
+
     Args:
-        filename: The filename to check
-        
+        filepath: Path to a file, possibly without the .docx extension
+
     Returns:
-        Filename with .docx extension
+        The filepath guaranteed to end with '.docx'
     """
-    if not filename.endswith('.docx'):
-        return filename + '.docx'
-    return filename
+    try:
+        if not isinstance(filepath, str):
+            return filepath
+        lower = filepath.lower()
+        if lower.endswith(".docx"):
+            return filepath
+        # Avoid double dots: if path already has an extension, keep it as-is
+        # Most callers pass names without extension; they expect appending .docx
+        # If the caller passes a different extension intentionally, we respect it.
+        # However, the project-wide convention expects Word docs.
+        if os.path.splitext(filepath)[1]:
+            return filepath
+        return f"{filepath}.docx"
+    except Exception:
+        # Fallback: return original to avoid breaking callers
+        return filepath

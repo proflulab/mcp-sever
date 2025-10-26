@@ -24,7 +24,7 @@ def check_prerequisites():
     # Check if word-document-server is already installed via pip
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "pip", "show", "word-document-server"],
+            [sys.executable, "-m", "pip", "show", "office-word-mcp-server"],
             capture_output=True,
             text=True,
             check=False
@@ -211,7 +211,7 @@ def generate_mcp_config_local(python_path, transport_config):
     # Create MCP configuration dictionary
     config = {
         "mcpServers": {
-            "word-document-server": {
+            "office-word-mcp-server": {
                 "command": python_path,
                 "args": [server_script_path],
                 "env": env
@@ -261,9 +261,9 @@ def generate_mcp_config_uvx(transport_config):
     # Create MCP configuration dictionary
     config = {
         "mcpServers": {
-            "word-document-server": {
+            "office-word-mcp-server": {
                 "command": "uvx",
-                "args": ["--from", "word-mcp-server", "word_mcp_server"],
+                "args": ["--from", "office-word-mcp-server", "word_mcp_server"],
                 "env": env
             }
         }
@@ -311,7 +311,7 @@ def generate_mcp_config_module(transport_config):
     # Create MCP configuration dictionary
     config = {
         "mcpServers": {
-            "word-document-server": {
+            "office-word-mcp-server": {
                 "command": sys.executable,
                 "args": ["-m", "word_document_server"],
                 "env": env
@@ -332,13 +332,13 @@ def install_from_pypi():
     
     Returns: True if successful, False otherwise
     """
-    print("\nInstalling word-document-server from PyPI...")
+    print("\nInstalling office-word-mcp-server from PyPI...")
     try:
-        subprocess.run([sys.executable, "-m", "pip", "install", "word-mcp-server"], check=True)
-        print("word-mcp-server successfully installed from PyPI!")
+        subprocess.run([sys.executable, "-m", "pip", "install", "office-word-mcp-server"], check=True)
+        print("office-word-mcp-server successfully installed from PyPI!")
         return True
     except subprocess.CalledProcessError:
-        print("Failed to install word-mcp-server from PyPI.")
+        print("Failed to install office-word-mcp-server from PyPI.")
         return False
 
 def print_config_instructions(config_path, transport_config):
@@ -442,9 +442,9 @@ if __name__ == '__main__':
     # Get transport configuration
     transport_config = get_transport_choice()
     
-    # If word-document-server is already installed, offer config options
+    # If office-word-mcp-server is already installed, offer config options
     if word_server_installed:
-        print("word-document-server is already installed via pip.")
+        print("office-word-mcp-server is already installed via pip.")
         
         if uvx_installed:
             print("\nOptions:")
@@ -485,9 +485,9 @@ if __name__ == '__main__':
                 print("Invalid choice. Exiting.")
                 sys.exit(1)
     
-    # If word-document-server is not installed, offer installation options
+    # If office-word-mcp-server is not installed, offer installation options
     else:
-        print("word-document-server is not installed.")
+        print("office-word-mcp-server is not installed.")
         
         print("\nOptions:")
         print("1. Install from PyPI (recommended)")
