@@ -144,6 +144,30 @@ def register_tools():
         return extended_document_tools.convert_rtf_to_docx(input_path, output_path)
 
     @mcp.tool()
+    async def convert_doc_to_docx(input_path: str, output_path: Optional[str] = None) -> str:
+        return await extended_document_tools.convert_doc_to_docx(input_path, output_path)
+
+    @mcp.tool()
+    async def convert_to_doc(filename: str, output_filename: Optional[str] = None) -> str:
+        return await extended_document_tools.convert_to_doc(filename, output_filename)
+
+    @mcp.tool()
+    async def convert_txt_to_pdf(input_path: str, output_path: Optional[str] = None) -> str:
+        return await extended_document_tools.convert_txt_to_pdf(input_path, output_path)
+
+    @mcp.tool()
+    async def convert_odt_to_pdf(input_path: str, output_path: Optional[str] = None) -> str:
+        return await extended_document_tools.convert_odt_to_pdf(input_path, output_path)
+
+    @mcp.tool()
+    async def convert_rtf_to_pdf(input_path: str, output_path: Optional[str] = None) -> str:
+        return await extended_document_tools.convert_rtf_to_pdf(input_path, output_path)
+
+    @mcp.tool()
+    async def convert_doc_to_pdf(input_path: str, output_path: Optional[str] = None) -> str:
+        return await extended_document_tools.convert_doc_to_pdf(input_path, output_path)
+
+    @mcp.tool()
     def replace_paragraph_block_below_header(filename: str, header_text: str, new_paragraphs: list, detect_block_end_fn=None):
         """Reemplaza el bloque de párrafos debajo de un encabezado, evitando modificar TOC."""
         return replace_paragraph_block_below_header_tool(filename, header_text, new_paragraphs, detect_block_end_fn)

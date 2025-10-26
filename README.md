@@ -25,6 +25,9 @@
 - DOCX → Markdown（先转 HTML，再用 `markdownify` 转为 Markdown）
 - DOCX → RTF（通过 LibreOffice 转换）
 - DOCX → ODT（通过 LibreOffice 转换）
+- DOCX → DOC（通过 LibreOffice 转换）
+- DOC → DOCX（通过 LibreOffice 转换）
+- TXT/ODT/RTF/DOC → PDF（通过 LibreOffice 转换）
 - HTML ↔ Markdown（`markdownify`、`markdown`）
 - HTML → PDF（通过 LibreOffice `soffice --convert-to pdf`）
 - HTML → DOCX（通过 LibreOffice 转换）
@@ -65,10 +68,15 @@
 - `convert_to_markdown(input_path, output_path=None)`
 - `convert_to_rtf(input_path, output_path=None)`
 - `convert_to_odt(input_path, output_path=None)`
+- `convert_to_doc(input_path, output_path=None)`
+- `convert_doc_to_docx(input_path, output_path=None)`
 - `convert_html_to_markdown(input_path, output_path=None)`
 - `convert_markdown_to_html(input_path, output_path=None)`
 - `convert_html_to_pdf(input_path, output_path=None)`
 - `convert_markdown_to_pdf(input_path, output_path=None)`
+- `convert_txt_to_pdf(input_path, output_path=None)`
+- `convert_odt_to_pdf(input_path, output_path=None)`
+- `convert_rtf_to_pdf(input_path, output_path=None)`
 - `convert_html_to_docx(input_path, output_path=None)`
 - `convert_markdown_to_docx(input_path, output_path=None)`
 - `convert_txt_to_docx(input_path, output_path=None)`
@@ -76,10 +84,14 @@
 - `convert_rtf_to_docx(input_path, output_path=None)`
 
 说明：
-- `input_path` 为输入文件的绝对路径。（如`e\\mcp-sever`）
-- `output_path` 可选；不提供时将自动生成与输入同名的目标文件（扩展名分别为 `.pdf`/`.txt`/`.html`/`.md`/`.rtf`/`.odt`/`.docx`）。
-- Windows/macOS/Linux：若需要 `rtf`/`odt` 或 `html/md → docx` 功能，请安装 LibreOffice；否则部分功能将降级或返回安装提示。
+- `input_path` 为输入文件的绝对路径。（如 `e\\mcp-sever\\docs\\sample.docx`）
+- `output_path` 可选；不提供时将自动生成与输入同名的目标文件（扩展名分别为 `.pdf`/`.txt`/`.html`/`.md`/`.rtf`/`.odt`/`.doc`/`.docx`）。
+- Windows/macOS/Linux：若需要 `rtf`/`odt`/`doc` 或 `html/md/txt → docx/pdf` 功能，请安装 LibreOffice；否则部分功能将降级或返回安装提示。
 
+使用提示：
+- `convert_to_doc(input_path)` 将 DOCX 转为旧版 `.doc` 格式，建议仅在兼容旧系统时使用。
+- `convert_doc_to_docx(input_path)` 将 `.doc` 升级为现代 `.docx`，便于后续处理与版本控制。
+- `convert_*_to_pdf(input_path)` 系列统一通过 LibreOffice 生成 PDF，输出路径不提供时默认与输入同目录。
 
 ## 备注
 - 进行 PDF 转换时，若系统未安装 LibreOffice，`HTML→PDF` 与 `Markdown→PDF` 会提示安装需求。

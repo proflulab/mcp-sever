@@ -768,3 +768,316 @@ async def convert_rtf_to_docx(input_path: str, output_path: Optional[str] = None
         return "Failed to convert RTF to DOCX using LibreOffice. " + "; ".join(errors)
     except Exception as e:
         return f"Failed to convert RTF to DOCX: {str(e)}"
+
+async def convert_to_doc(filename: str, output_filename: Optional[str] = None) -> str:
+    filename = ensure_docx_extension(filename)
+    if not os.path.exists(filename):
+        return f"Document {filename} does not exist"
+    if not output_filename:
+        base_name, _ = os.path.splitext(filename)
+        output_filename = f"{base_name}.doc"
+    elif not output_filename.lower().endswith('.doc'):
+        output_filename = f"{output_filename}.doc"
+    if not os.path.isabs(output_filename):
+        output_filename = os.path.abspath(output_filename)
+    output_dir = os.path.dirname(output_filename) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_filename)
+    if not is_writeable:
+        return f"Cannot create DOC: {error_message} (Path: {output_filename}, Dir: {output_dir})"
+    try:
+        system = platform.system()
+        candidates = []
+        if system == 'Windows':
+            candidates = [
+                'soffice',
+                r'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+                r'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
+            ]
+        elif system == 'Darwin':
+            candidates = ['soffice', '/Applications/LibreOffice.app/Contents/MacOS/soffice']
+        else:
+            candidates = ['libreoffice', 'soffice']
+        errors = []
+        for cmd_name in candidates:
+            try:
+                cmd = [cmd_name, '--headless', '--convert-to', 'doc', '--outdir', output_dir, filename]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
+                if result.returncode == 0:
+                    base_name = os.path.splitext(os.path.basename(filename))[0]
+                    created_path = os.path.join(output_dir, f'{base_name}.doc')
+                    if os.path.exists(created_path):
+                        if created_path != output_filename:
+                            shutil.move(created_path, output_filename)
+                        if os.path.exists(output_filename):
+                            return f"Document successfully converted to DOC via {cmd_name}: {output_filename}"
+                    errors.append(f"{cmd_name} returned success code, but output file '{created_path}' was not found.")
+                else:
+                    errors.append(f"{cmd_name} failed. Stderr: {result.stderr.strip()}")
+            except FileNotFoundError:
+                errors.append(f"Command '{cmd_name}' not found.")
+            except Exception as e:
+                errors.append(f"An error occurred with {cmd_name}: {str(e)}")
+        return "Failed to convert DOCX to DOC using LibreOffice. " + "; ".join(errors)
+    except Exception as e:
+        return f"Failed to convert document to DOC: {str(e)}"
+
+async def convert_doc_to_docx(input_path: str, output_path: Optional[str] = None) -> str:
+    if not os.path.exists(input_path):
+        return f"Document {input_path} does not exist"
+    if not output_path:
+        base_name, _ = os.path.splitext(input_path)
+        output_path = f"{base_name}.docx"
+    elif not output_path.lower().endswith('.docx'):
+        output_path = f"{output_path}.docx"
+    if not os.path.isabs(output_path):
+        output_path = os.path.abspath(output_path)
+    output_dir = os.path.dirname(output_path) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_path)
+    if not is_writeable:
+        return f"Cannot create DOCX: {error_message} (Path: {output_path}, Dir: {output_dir})"
+    try:
+        system = platform.system()
+        candidates = []
+        if system == 'Windows':
+            candidates = [
+                'soffice',
+                r'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+                r'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
+            ]
+        elif system == 'Darwin':
+            candidates = ['soffice', '/Applications/LibreOffice.app/Contents/MacOS/soffice']
+        else:
+            candidates = ['libreoffice', 'soffice']
+        errors = []
+        for cmd_name in candidates:
+            try:
+                cmd = [cmd_name, '--headless', '--convert-to', 'docx', '--outdir', output_dir, input_path]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
+                if result.returncode == 0:
+                    base_name = os.path.splitext(os.path.basename(input_path))[0]
+                    created_path = os.path.join(output_dir, f'{base_name}.docx')
+                    if os.path.exists(created_path):
+                        if created_path != output_path:
+                            shutil.move(created_path, output_path)
+                        if os.path.exists(output_path):
+                            return f"Document successfully converted to DOCX via {cmd_name}: {output_path}"
+                    errors.append(f"{cmd_name} returned success code, but output file '{created_path}' was not found.")
+                else:
+                    errors.append(f"{cmd_name} failed. Stderr: {result.stderr.strip()}")
+            except FileNotFoundError:
+                errors.append(f"Command '{cmd_name}' not found.")
+            except Exception as e:
+                errors.append(f"An error occurred with {cmd_name}: {str(e)}")
+        return "Failed to convert DOC to DOCX using LibreOffice. " + "; ".join(errors)
+    except Exception as e:
+        return f"Failed to convert DOC to DOCX: {str(e)}"
+
+async def convert_txt_to_pdf(input_path: str, output_path: Optional[str] = None) -> str:
+    if not os.path.exists(input_path):
+        return f"Document {input_path} does not exist"
+    if not output_path:
+        base_name, _ = os.path.splitext(input_path)
+        output_path = f"{base_name}.pdf"
+    elif not output_path.lower().endswith('.pdf'):
+        output_path = f"{output_path}.pdf"
+    if not os.path.isabs(output_path):
+        output_path = os.path.abspath(output_path)
+    output_dir = os.path.dirname(output_path) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_path)
+    if not is_writeable:
+        return f"Cannot create PDF: {error_message} (Path: {output_path}, Dir: {output_dir})"
+    try:
+        system = platform.system()
+        candidates = []
+        if system == 'Windows':
+            candidates = [
+                'soffice',
+                r'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+                r'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
+            ]
+        elif system == 'Darwin':
+            candidates = ['soffice', '/Applications/LibreOffice.app/Contents/MacOS/soffice']
+        else:
+            candidates = ['libreoffice', 'soffice']
+        errors = []
+        for cmd_name in candidates:
+            try:
+                cmd = [cmd_name, '--headless', '--convert-to', 'pdf', '--outdir', output_dir, input_path]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
+                if result.returncode == 0:
+                    base_name = os.path.splitext(os.path.basename(input_path))[0]
+                    created_pdf_path = os.path.join(output_dir, f'{base_name}.pdf')
+                    if os.path.exists(created_pdf_path):
+                        if created_pdf_path != output_path:
+                            shutil.move(created_pdf_path, output_path)
+                        if os.path.exists(output_path):
+                            return f"Document successfully converted to PDF via {cmd_name}: {output_path}"
+                    errors.append(f"{cmd_name} returned success code, but output file '{created_pdf_path}' was not found.")
+                else:
+                    errors.append(f"{cmd_name} failed. Stderr: {result.stderr.strip()}")
+            except FileNotFoundError:
+                errors.append(f"Command '{cmd_name}' not found.")
+            except Exception as e:
+                errors.append(f"An error occurred with {cmd_name}: {str(e)}")
+        return "Failed to convert TXT to PDF using LibreOffice. " + "; ".join(errors)
+    except Exception as e:
+        return f"Failed to convert TXT to PDF: {str(e)}"
+
+async def convert_odt_to_pdf(input_path: str, output_path: Optional[str] = None) -> str:
+    if not os.path.exists(input_path):
+        return f"Document {input_path} does not exist"
+    if not output_path:
+        base_name, _ = os.path.splitext(input_path)
+        output_path = f"{base_name}.pdf"
+    elif not output_path.lower().endswith('.pdf'):
+        output_path = f"{output_path}.pdf"
+    if not os.path.isabs(output_path):
+        output_path = os.path.abspath(output_path)
+    output_dir = os.path.dirname(output_path) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_path)
+    if not is_writeable:
+        return f"Cannot create PDF: {error_message} (Path: {output_path}, Dir: {output_dir})"
+    try:
+        system = platform.system()
+        candidates = []
+        if system == 'Windows':
+            candidates = [
+                'soffice',
+                r'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+                r'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
+            ]
+        elif system == 'Darwin':
+            candidates = ['soffice', '/Applications/LibreOffice.app/Contents/MacOS/soffice']
+        else:
+            candidates = ['libreoffice', 'soffice']
+        errors = []
+        for cmd_name in candidates:
+            try:
+                cmd = [cmd_name, '--headless', '--convert-to', 'pdf', '--outdir', output_dir, input_path]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
+                if result.returncode == 0:
+                    base_name = os.path.splitext(os.path.basename(input_path))[0]
+                    created_pdf_path = os.path.join(output_dir, f'{base_name}.pdf')
+                    if os.path.exists(created_pdf_path):
+                        if created_pdf_path != output_path:
+                            shutil.move(created_pdf_path, output_path)
+                        if os.path.exists(output_path):
+                            return f"Document successfully converted to PDF via {cmd_name}: {output_path}"
+                    errors.append(f"{cmd_name} returned success code, but output file '{created_pdf_path}' was not found.")
+                else:
+                    errors.append(f"{cmd_name} failed. Stderr: {result.stderr.strip()}")
+            except FileNotFoundError:
+                errors.append(f"Command '{cmd_name}' not found.")
+            except Exception as e:
+                errors.append(f"An error occurred with {cmd_name}: {str(e)}")
+        return "Failed to convert ODT to PDF using LibreOffice. " + "; ".join(errors)
+    except Exception as e:
+        return f"Failed to convert ODT to PDF: {str(e)}"
+
+async def convert_rtf_to_pdf(input_path: str, output_path: Optional[str] = None) -> str:
+    if not os.path.exists(input_path):
+        return f"Document {input_path} does not exist"
+    if not output_path:
+        base_name, _ = os.path.splitext(input_path)
+        output_path = f"{base_name}.pdf"
+    elif not output_path.lower().endswith('.pdf'):
+        output_path = f"{output_path}.pdf"
+    if not os.path.isabs(output_path):
+        output_path = os.path.abspath(output_path)
+    output_dir = os.path.dirname(output_path) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_path)
+    if not is_writeable:
+        return f"Cannot create PDF: {error_message} (Path: {output_path}, Dir: {output_dir})"
+    try:
+        system = platform.system()
+        candidates = []
+        if system == 'Windows':
+            candidates = [
+                'soffice',
+                r'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+                r'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
+            ]
+        elif system == 'Darwin':
+            candidates = ['soffice', '/Applications/LibreOffice.app/Contents/MacOS/soffice']
+        else:
+            candidates = ['libreoffice', 'soffice']
+        errors = []
+        for cmd_name in candidates:
+            try:
+                cmd = [cmd_name, '--headless', '--convert-to', 'pdf', '--outdir', output_dir, input_path]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
+                if result.returncode == 0:
+                    base_name = os.path.splitext(os.path.basename(input_path))[0]
+                    created_pdf_path = os.path.join(output_dir, f'{base_name}.pdf')
+                    if os.path.exists(created_pdf_path):
+                        if created_pdf_path != output_path:
+                            shutil.move(created_pdf_path, output_path)
+                        if os.path.exists(output_path):
+                            return f"Document successfully converted to PDF via {cmd_name}: {output_path}"
+                    errors.append(f"{cmd_name} returned success code, but output file '{created_pdf_path}' was not found.")
+                else:
+                    errors.append(f"{cmd_name} failed. Stderr: {result.stderr.strip()}")
+            except FileNotFoundError:
+                errors.append(f"Command '{cmd_name}' not found.")
+            except Exception as e:
+                errors.append(f"An error occurred with {cmd_name}: {str(e)}")
+        return "Failed to convert RTF to PDF using LibreOffice. " + "; ".join(errors)
+    except Exception as e:
+        return f"Failed to convert RTF to PDF: {str(e)}"
+
+async def convert_doc_to_pdf(input_path: str, output_path: Optional[str] = None) -> str:
+    if not os.path.exists(input_path):
+        return f"Document {input_path} does not exist"
+    if not output_path:
+        base_name, _ = os.path.splitext(input_path)
+        output_path = f"{base_name}.pdf"
+    elif not output_path.lower().endswith('.pdf'):
+        output_path = f"{output_path}.pdf"
+    if not os.path.isabs(output_path):
+        output_path = os.path.abspath(output_path)
+    output_dir = os.path.dirname(output_path) or os.path.abspath('.')
+    os.makedirs(output_dir, exist_ok=True)
+    is_writeable, error_message = check_file_writeable(output_path)
+    if not is_writeable:
+        return f"Cannot create PDF: {error_message} (Path: {output_path}, Dir: {output_dir})"
+    try:
+        system = platform.system()
+        candidates = []
+        if system == 'Windows':
+            candidates = [
+                'soffice',
+                r'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+                r'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
+            ]
+        elif system == 'Darwin':
+            candidates = ['soffice', '/Applications/LibreOffice.app/Contents/MacOS/soffice']
+        else:
+            candidates = ['libreoffice', 'soffice']
+        errors = []
+        for cmd_name in candidates:
+            try:
+                cmd = [cmd_name, '--headless', '--convert-to', 'pdf', '--outdir', output_dir, input_path]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
+                if result.returncode == 0:
+                    base_name = os.path.splitext(os.path.basename(input_path))[0]
+                    created_pdf_path = os.path.join(output_dir, f'{base_name}.pdf')
+                    if os.path.exists(created_pdf_path):
+                        if created_pdf_path != output_path:
+                            shutil.move(created_pdf_path, output_path)
+                        if os.path.exists(output_path):
+                            return f"Document successfully converted to PDF via {cmd_name}: {output_path}"
+                    errors.append(f"{cmd_name} returned success code, but output file '{created_pdf_path}' was not found.")
+                else:
+                    errors.append(f"{cmd_name} failed. Stderr: {result.stderr.strip()}")
+            except FileNotFoundError:
+                errors.append(f"Command '{cmd_name}' not found.")
+            except Exception as e:
+                errors.append(f"An error occurred with {cmd_name}: {str(e)}")
+        return "Failed to convert DOC to PDF using LibreOffice. " + "; ".join(errors)
+    except Exception as e:
+        return f"Failed to convert DOC to PDF: {str(e)}"
