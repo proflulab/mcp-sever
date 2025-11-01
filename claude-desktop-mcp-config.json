@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "lulab-mcp-server": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "lulab-convert-mcp-server",
+        "lulab-convert-mcp-server"
+      ],
+      "env": {
+        "MCP_TRANSPORT": "stdio"
+      }
+    }
+  }
+}

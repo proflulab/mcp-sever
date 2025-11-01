@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "office-word-mcp-server"
-version = "1.1.10"
-description = "MCP server for manipulating Microsoft Word documents"
+name = "lulab-convert-mcp-server"
+version = "1.1.13"
+description = "LuLab Convert MCP Server - A document conversion server supporting DOCX to multiple formats"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
@@ -37,4 +37,4 @@ only-include = [
 sources = ["."]
 
 [project.scripts]
-word_mcp_server = "word_document_server.main:run_server"
+lulab-convert-mcp-server = "word_document_server.main:run_server"

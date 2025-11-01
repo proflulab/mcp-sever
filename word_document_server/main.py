@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import Optional
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -168,7 +169,7 @@ def register_tools():
         return await extended_document_tools.convert_doc_to_pdf(input_path, output_path)
 
     @mcp.tool()
-    def replace_paragraph_block_below_header(filename: str, header_text: str, new_paragraphs: list, detect_block_end_fn=None):
+    def replace_block_below_header(filename: str, header_text: str, new_paragraphs: list, detect_block_end_fn=None):
         """Reemplaza el bloque de párrafos debajo de un encabezado, evitando modificar TOC."""
         return replace_paragraph_block_below_header_tool(filename, header_text, new_paragraphs, detect_block_end_fn)
 

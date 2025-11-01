@@ -9,11 +9,40 @@
 - Cline (VS Code扩展)
 - 其他支持MCP协议的AI工具
 
-## 快速开始
+## 📦 安装方式
 
+### 方法 1: 从 PyPI 安装 (推荐)
 
+**最简单的方式！无需克隆代码库**
 
-### 使用方法：本地使用
+```bash
+# 使用 pip 安装
+pip install lulab-convert-mcp-server
+
+# 或使用 uv 安装
+uv pip install lulab-convert-mcp-server
+```
+
+**MCP 客户端配置 (Claude Desktop):**
+```json
+{
+  "mcpServers": {
+    "lulab-convert-mcp-server": {
+      "command": "uvx",
+      "args": [
+        "lulab-convert-mcp-server"
+      ],
+      "env": {
+        "MCP_TRANSPORT": "stdio"
+      }
+    }
+  }
+}
+```
+
+📖 **详细的 PyPI 使用指南**: 请查看 [PYPI_USAGE.md](./PYPI_USAGE.md)
+
+### 方法 2: 本地开发安装
 1. 克隆或下载此项目
 2. 安装依赖：`pip install -r requirements.txt`
 3. 在您的AI客户端配置文件中添加MCP服务器配置（参考下方json配置示例）
