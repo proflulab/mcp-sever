@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "lulab-convert-mcp-server"
-version = "1.1.13"
+version = "1.1.14"
 description = "LuLab Convert MCP Server - A document conversion server supporting DOCX to multiple formats"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -23,6 +23,7 @@ dependencies = [
     "msoffcrypto-tool>=5.4.2",
     "docx2pdf>=0.1.8",
     "pytest>=8.4.2",
+    "reportlab>=4.0.0",
 ]
 
 [project.urls]

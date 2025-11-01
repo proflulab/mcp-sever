@@ -105,13 +105,65 @@ async def convert_to_pdf(filename: str, output_filename: Optional[str] = None) -
         system = platform.system()
         
         if system == "Windows":
-            # On Windows, try docx2pdf which uses Microsoft Word
+            errors = []
+            
+            # --- Attempt 1: docx2pdf (requires Microsoft Word) ---
             try:
                 from docx2pdf import convert
                 convert(filename, output_filename)
-                return f"Document successfully converted to PDF: {output_filename}"
-            except (ImportError, Exception) as e:
-                return f"Failed to convert document to PDF: {str(e)}\nNote: docx2pdf requires Microsoft Word to be installed."
+                if os.path.exists(output_filename) and os.path.getsize(output_filename) > 0:
+                    return f"Document successfully converted to PDF via docx2pdf: {output_filename}"
+                else:
+                    errors.append("docx2pdf was executed but failed to create a valid output file.")
+            except ImportError:
+                errors.append("docx2pdf is not installed.")
+            except Exception as e:
+                errors.append(f"docx2pdf failed: {str(e)}")
+            
+            # --- Attempt 2: python-docx + reportlab (fallback) ---
+            try:
+                from reportlab.lib.pagesizes import A4
+                from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+                from reportlab.lib.styles import getSampleStyleSheet
+                from reportlab.lib.units import inch
+                
+                # Read DOCX content
+                doc = Document(filename)
+                
+                # Create PDF
+                pdf_doc = SimpleDocTemplate(output_filename, pagesize=A4)
+                styles = getSampleStyleSheet()
+                story = []
+                
+                # Add content from DOCX
+                for paragraph in doc.paragraphs:
+                    if paragraph.text.strip():
+                        # Clean text for reportlab
+                        clean_text = paragraph.text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                        p = Paragraph(clean_text, styles['Normal'])
+                        story.append(p)
+                        story.append(Spacer(1, 12))
+                
+                # Build PDF
+                pdf_doc.build(story)
+                
+                if os.path.exists(output_filename) and os.path.getsize(output_filename) > 0:
+                    return f"Document successfully converted to PDF via python-docx + reportlab: {output_filename}"
+                else:
+                    errors.append("python-docx + reportlab conversion failed to create a valid output file.")
+                    
+            except ImportError as e:
+                errors.append(f"Required libraries not installed for reportlab conversion: {str(e)}")
+            except Exception as e:
+                errors.append(f"python-docx + reportlab conversion failed: {str(e)}")
+            
+            # --- If all attempts failed ---
+            error_summary = "Failed to convert document to PDF using all available methods.\n"
+            error_summary += "Recorded errors: " + "; ".join(errors) + "\n"
+            error_summary += "To convert documents to PDF on Windows, please install either:\n"
+            error_summary += "1. Microsoft Word (required for docx2pdf)\n"
+            error_summary += "2. reportlab library: pip install reportlab"
+            return error_summary
                 
         elif system in ["Linux", "Darwin"]:  # Linux or macOS
             errors = []
